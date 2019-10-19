@@ -1,4 +1,4 @@
-FROM node:11
+FROM node:12-stretch-slim
 
 RUN mkdir -p /app/node && chown node:node /app/node
 
