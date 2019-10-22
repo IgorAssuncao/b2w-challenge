@@ -8,6 +8,10 @@ routes.get('/', async (request, response) => {
   return response.json({ message: 'Hello, World!' });
 });
 
-routes.post('/planets', PlanetController.store);
+routes.get('/allPlanets', PlanetController.list);
+routes.get('/planets/:id', PlanetController.findById);
+routes.get('/planets', PlanetController.findByName);
+routes.post('/planets', PlanetController.create);
+routes.delete('/planets', PlanetController.delete);
 
 export default routes;
