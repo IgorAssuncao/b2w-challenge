@@ -8,22 +8,27 @@ const mockgoose = new Mockgoose(mongoose);
 jest.useFakeTimers();
 jest.setTimeout(450000);
 
+const cleanUpDatabase = async () => {
+  console.log('Cleaning up database...');
+  await mockgoose.helper.reset();
+  // await mockgoose.mongooseObj.connections[0].models.Planet.deleteMany();
+  console.log('Finished cleaning up database...');
+};
+
 (async () => mockgoose.prepareStorage())();
 // console.log(mockgoose.mongooseObj.connections[0]);
 
 describe('Planets endpoints', () => {
-  let planetId;
+  beforeEach(async () => cleanUpDatabase());
 
-  beforeAll(async () => {
-    await mockgoose.helper.reset();
-    // await mockgoose.mongooseObj.connections[0].models.Planet.deleteMany();
+  afterEach(async () => {
+    await cleanUpDatabase();
   });
 
-  afterAll(async () => {
-    // await mockgoose.mongooseObj.connections[0].models.Planet.deleteMany();
-    await mockgoose.helper.reset();
-    await mockgoose.mongooseObj.connections[0].close();
-  });
+  // afterAll(async () => {
+  //   await mockgoose.mongooseObj.connections[0].close();
+  //   console.log('Closing connection...');
+  // });
 
   it('should create a planet in database if not exists', async () => {
     const result = await supertest(app)
@@ -34,7 +39,6 @@ describe('Planets endpoints', () => {
         terrain: 'grasslands, mountains',
       });
 
-    planetId = result.body._id;
     expect(result.statusCode).toEqual(201);
     expect(result.body).toHaveProperty('_id');
     expect(result.body).toHaveProperty('name');
@@ -48,6 +52,14 @@ describe('Planets endpoints', () => {
   });
 
   it('should not create a planet in database if exists', async () => {
+    const planet = await supertest(app)
+      .post('/planets')
+      .send({
+        name: 'alderaan',
+        climate: 'temperate',
+        terrain: 'grasslands, mountains',
+      });
+
     const result = await supertest(app)
       .post('/planets')
       .send({
@@ -61,14 +73,55 @@ describe('Planets endpoints', () => {
   });
 
   it('should retrieve all planets', async () => {
+    const planet = await supertest(app)
+      .post('/planets')
+      .send({
+        name: 'alderaan',
+        climate: 'temperate',
+        terrain: 'grasslands, mountains',
+      });
+
     const result = await supertest(app).get('/allPlanets');
 
     expect(result.statusCode).toBe(200);
     expect(result.body.length).toBeGreaterThan(0);
   });
 
-  it("should retrieve a planet by searching for it's id", async () => {
-    const result = await supertest(app).get(`/planets/${planetId}`);
+  fit("should retrieve a planet by searching for it's id", async () => {
+    const planet = await supertest(app)
+      .post('/planets')
+      .send({
+        name: 'alderaan',
+        climate: 'temperate',
+        terrain: 'grasslands, mountains',
+      });
+
+    console.log(planet);
+    expect(true).toBe(false);
+    // const result = await supertest(app).get(`/planets/${planet._id}`);
+
+    // expect(result.statusCode).toBe(200);
+    // expect(result.body).toHaveProperty('_id');
+    // expect(result.body).toHaveProperty('name');
+    // expect(result.body).toHaveProperty('climate');
+    // expect(result.body).toHaveProperty('terrain');
+    // expect(result.body).toMatchObject({
+    //   name: 'alderaan',
+    //   climate: 'temperate',
+    //   terrain: 'grasslands, mountains',
+    // });
+  });
+
+  it("should retrieve a planet by searching for it's name", async () => {
+    const planet = await supertest(app)
+      .post('/planets')
+      .send({
+        name: 'alderaan',
+        climate: 'temperate',
+        terrain: 'grasslands, mountains',
+      });
+
+    const result = await supertest(app).get(`/planets/?name=alderaan`);
 
     expect(result.statusCode).toBe(200);
     expect(result.body).toHaveProperty('_id');
@@ -82,8 +135,18 @@ describe('Planets endpoints', () => {
     });
   });
 
-  it("should retrieve a planet by searching for it's name", async () => {
-    const result = await supertest(app).get(`/planets/?name=alderaan`);
+  it('should delete a planet given the id', async () => {
+    const planet = await supertest(app)
+      .post('/planets')
+      .send({
+        name: 'alderaan',
+        climate: 'temperate',
+        terrain: 'grasslands, mountains',
+      });
+
+    const result = await supertest(app)
+      .delete('/planets')
+      .send({ id: planet._id });
 
     expect(result.statusCode).toBe(200);
     expect(result.body).toHaveProperty('_id');
@@ -94,6 +157,25 @@ describe('Planets endpoints', () => {
       name: 'alderaan',
       climate: 'temperate',
       terrain: 'grasslands, mountains',
+    });
+  });
+
+  it('should not delete a planet if the given id is invalid', async () => {
+    const planet = await supertest(app)
+      .post('/planets')
+      .send({
+        name: 'alderaan',
+        climate: 'temperate',
+        terrain: 'grasslands, mountains',
+      });
+
+    const result = await supertest(app)
+      .delete('/planets')
+      .send({ id: 'a' });
+
+    expect(result.statusCode).toBe(400);
+    expect(result.body).toMatchObject({
+      error: 'Planet could not be deleted',
     });
   });
 });
