@@ -33,4 +33,5 @@ To delete a planet make a POST request at `localhost:3000/planets` providing an 
 (note that `:id` has to be replaced by the ID provided by the API that was returned when you created a planet)
 
 #### To run the tests:
-
+Run `docker-compose up mongo`
+Run `yarn jest` inside the `api` directory
