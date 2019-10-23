@@ -8,27 +8,28 @@ const mockgoose = new Mockgoose(mongoose);
 jest.useFakeTimers();
 jest.setTimeout(450000);
 
-const cleanUpDatabase = async () => {
-  console.log('Cleaning up database...');
-  await mockgoose.helper.reset();
-  // await mockgoose.mongooseObj.connections[0].models.Planet.deleteMany();
-  console.log('Finished cleaning up database...');
-};
-
 (async () => mockgoose.prepareStorage())();
-// console.log(mockgoose.mongooseObj.connections[0]);
+
+const cleanUpDatabase = async () => {
+  // await mockgoose.mongooseObj.connections.forEach(connection =>
+  //   connection.models.Planet.deleteMany()
+  // );
+  await mongoose.models.Planet.deleteMany();
+};
 
 describe('Planets endpoints', () => {
   beforeEach(async () => cleanUpDatabase());
 
-  afterEach(async () => {
-    await cleanUpDatabase();
-  });
+  afterEach(async () => cleanUpDatabase());
 
-  // afterAll(async () => {
-  //   await mockgoose.mongooseObj.connections[0].close();
-  //   console.log('Closing connection...');
-  // });
+  beforeAll(async () => cleanUpDatabase());
+
+  afterAll(async () => {
+    await cleanUpDatabase();
+    await mockgoose.mongooseObj.connections.forEach(connection =>
+      connection.close()
+    );
+  });
 
   it('should create a planet in database if not exists', async () => {
     const result = await supertest(app)
@@ -87,8 +88,8 @@ describe('Planets endpoints', () => {
     expect(result.body.length).toBeGreaterThan(0);
   });
 
-  fit("should retrieve a planet by searching for it's id", async () => {
-    const planet = await supertest(app)
+  it("should retrieve a planet by searching for it's id", async () => {
+    const response = await supertest(app)
       .post('/planets')
       .send({
         name: 'alderaan',
@@ -96,20 +97,18 @@ describe('Planets endpoints', () => {
         terrain: 'grasslands, mountains',
       });
 
-    console.log(planet);
-    expect(true).toBe(false);
-    // const result = await supertest(app).get(`/planets/${planet._id}`);
+    const result = await supertest(app).get(`/planets/${response.body._id}`);
 
-    // expect(result.statusCode).toBe(200);
-    // expect(result.body).toHaveProperty('_id');
-    // expect(result.body).toHaveProperty('name');
-    // expect(result.body).toHaveProperty('climate');
-    // expect(result.body).toHaveProperty('terrain');
-    // expect(result.body).toMatchObject({
-    //   name: 'alderaan',
-    //   climate: 'temperate',
-    //   terrain: 'grasslands, mountains',
-    // });
+    expect(result.statusCode).toBe(200);
+    expect(result.body).toHaveProperty('_id');
+    expect(result.body).toHaveProperty('name');
+    expect(result.body).toHaveProperty('climate');
+    expect(result.body).toHaveProperty('terrain');
+    expect(result.body).toMatchObject({
+      name: 'alderaan',
+      climate: 'temperate',
+      terrain: 'grasslands, mountains',
+    });
   });
 
   it("should retrieve a planet by searching for it's name", async () => {
@@ -136,7 +135,7 @@ describe('Planets endpoints', () => {
   });
 
   it('should delete a planet given the id', async () => {
-    const planet = await supertest(app)
+    const response = await supertest(app)
       .post('/planets')
       .send({
         name: 'alderaan',
@@ -146,7 +145,7 @@ describe('Planets endpoints', () => {
 
     const result = await supertest(app)
       .delete('/planets')
-      .send({ id: planet._id });
+      .send({ id: response.body._id });
 
     expect(result.statusCode).toBe(200);
     expect(result.body).toHaveProperty('_id');
@@ -161,7 +160,7 @@ describe('Planets endpoints', () => {
   });
 
   it('should not delete a planet if the given id is invalid', async () => {
-    const planet = await supertest(app)
+    await supertest(app)
       .post('/planets')
       .send({
         name: 'alderaan',
@@ -171,7 +170,7 @@ describe('Planets endpoints', () => {
 
     const result = await supertest(app)
       .delete('/planets')
-      .send({ id: 'a' });
+      .send({ id: '5db0e6ac88bc552f2392cc6a' });
 
     expect(result.statusCode).toBe(400);
     expect(result.body).toMatchObject({
