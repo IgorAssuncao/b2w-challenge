@@ -5,8 +5,6 @@ import app from '../../src/app';
 
 const mockgoose = new Mockgoose(mongoose);
 
-// mongoose.connect('mongodb://localhost/b2w-test');
-
 jest.useFakeTimers();
 jest.setTimeout(450000);
 
@@ -15,14 +13,6 @@ jest.setTimeout(450000);
 
 describe('Planets endpoints', () => {
   let planetId;
-
-  // beforeAll(async () => {
-  //   await mongoose.models.Planet.deleteMany();
-  // });
-
-  // afterAll(async () => {
-  //   await mongoose.models.Planet.deleteMany();
-  // });
 
   beforeAll(async () => {
     await mockgoose.helper.reset();
