@@ -8,14 +8,19 @@ services:
       - "3000"
     ports:
       - "3000:3000"
+    volumes:
+      - "./api/src:/app/node/src"
+      - "./api/node_modules:/app/node/node_modules"
     depends_on:
       - mongo
     networks:
       - "net"
-    command: "yarn start"
+    command: "yarn dev"
   
   mongo:
     image: mongo:4.2-bionic
+    volumes: 
+      - "./data:/db"
     ports:
       - "27017:27017"
     networks:

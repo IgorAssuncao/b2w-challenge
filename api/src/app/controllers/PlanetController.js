@@ -17,7 +17,7 @@ class PlanetController {
   }
 
   async findById(request, response) {
-    const planet = await Planet.findById(request.params.id);
+    const planet = await Planet.findById(request.params.id, { __v: false });
 
     if (!planet)
       return response.status(400).json({ error: 'Planet not found' });

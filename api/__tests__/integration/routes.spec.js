@@ -2,39 +2,38 @@ import supertest from 'supertest';
 import mongoose from 'mongoose';
 import { Mockgoose } from 'mockgoose';
 import app from '../../src/app';
-// import '../../src/database';
 
-// const mockgoose = new Mockgoose(mongoose);
+const mockgoose = new Mockgoose(mongoose);
 
 // mongoose.connect('mongodb://localhost/b2w-test');
 
 jest.useFakeTimers();
 jest.setTimeout(450000);
 
-// (async () => mockgoose.prepareStorage())();
+(async () => mockgoose.prepareStorage())();
 // console.log(mockgoose.mongooseObj.connections[0]);
 
 describe('Planets endpoints', () => {
   let planetId;
 
-  beforeAll(async () => {
-    await mongoose.models.Planet.deleteMany();
-  });
-
-  afterAll(async () => {
-    await mongoose.models.Planet.deleteMany();
-  });
-
   // beforeAll(async () => {
-  //   await mockgoose.helper.reset();
-  //   // await mockgoose.mongooseObj.connections[0].models.Planet.deleteMany();
+  //   await mongoose.models.Planet.deleteMany();
   // });
 
   // afterAll(async () => {
-  //   // await mockgoose.mongooseObj.connections[0].models.Planet.deleteMany();
-  //   await mockgoose.helper.reset();
-  //   await mockgoose.mongooseObj.connections[0].close();
+  //   await mongoose.models.Planet.deleteMany();
   // });
+
+  beforeAll(async () => {
+    await mockgoose.helper.reset();
+    // await mockgoose.mongooseObj.connections[0].models.Planet.deleteMany();
+  });
+
+  afterAll(async () => {
+    // await mockgoose.mongooseObj.connections[0].models.Planet.deleteMany();
+    await mockgoose.helper.reset();
+    await mockgoose.mongooseObj.connections[0].close();
+  });
 
   it('should create a planet in database if not exists', async () => {
     const result = await supertest(app)
