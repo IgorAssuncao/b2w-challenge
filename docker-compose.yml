@@ -16,6 +16,8 @@ services:
   
   mongo:
     image: mongo:4.2-bionic
+    volumes:
+      - "./data:/db"
     ports:
       - "27017:27017"
     networks:
