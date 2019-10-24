@@ -1,3 +1,4 @@
+import "jest";
 import supertest from 'supertest';
 import mongoose from 'mongoose';
 import { Mockgoose } from 'mockgoose';
