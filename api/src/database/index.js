@@ -6,15 +6,16 @@ class Database {
   }
 
   mongo() {
-    const mongoUrl =
-      process.env.NODE_ENV.indexOf('test') > -1
-        ? `mongodb://127.0.0.1/b2w-test`
-        : `mongodb://mongo/b2w`;
+    if (process.env.NODE_ENV !== 'test') {
+      const mongoUrl = `mongodb://mongo/b2w`;
 
-    this.mongoConnection = mongoose.connect(mongoUrl, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+      setTimeout(() => {
+        this.mongoConnection = mongoose.connect(mongoUrl, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true,
+        });
+      }, 10000);
+    }
   }
 }
 
