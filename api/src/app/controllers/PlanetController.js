@@ -111,7 +111,10 @@ class PlanetController {
         .status(400)
         .json({ error: 'Planet could not be deleted' });
 
-    return response.json(deletedPlanet);
+    return response.json({
+      message: 'Planet deleted',
+      deletedPlanet,
+    });
   }
 }
 
