@@ -6,7 +6,7 @@
   "scripts": {
     "start": "sucrase-node src/server.js",
     "dev": "nodemon src/server.js",
-    "jest": "jest --coverage --detectOpenHandles --forceExit",
+    "jest": "NODE_ENV=test jest --coverage --detectOpenHandles --forceExit",
     "test": "jest"
   },
   "dependencies": {

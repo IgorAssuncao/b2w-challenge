@@ -8,13 +8,7 @@ const mockgoose = new Mockgoose(mongoose);
 jest.useFakeTimers();
 jest.setTimeout(450000);
 
-(async () => {
-  await mockgoose.prepareStorage();
-  await mongoose.connect('mongodb://foobar/baz', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-})();
+(async () => await mockgoose.prepareStorage())();
 
 const cleanUpDatabase = async () => {
   await mongoose.models.Planet.deleteMany();

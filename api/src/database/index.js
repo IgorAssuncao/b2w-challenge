@@ -6,16 +6,17 @@ class Database {
   }
 
   mongo() {
-    if (process.env.NODE_ENV !== 'test') {
-      const mongoUrl = `mongodb://mongo/b2w`;
+    const mongoUrl =
+      process.env.NODE_ENV === 'test'
+        ? `mongodb://foobar/baz`
+        : `mongodb://mongo/b2w`;
 
-      setTimeout(() => {
-        this.mongoConnection = mongoose.connect(mongoUrl, {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-        });
-      }, 10000);
-    }
+    setTimeout(() => {
+      this.mongoConnection = mongoose.connect(mongoUrl, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+    }, 5000);
   }
 }
 
